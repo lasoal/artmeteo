@@ -1,51 +1,69 @@
 %%
-%Función: [c,k]=ajuste_weibull (R)
+%Función: [c,k,s]=ajuste_weibull (R)
 %Autor: Alberto Laso Pérez, GTEA, Universidad de Cantabria
-%Fecha: 20/09/2016
-%Versión: 1.0
+%Fecha: 25/09/2016
+%Versión: 1.01
+    %La función devuelve la salida del factor de escala s
+    %Se añade leyenda a las dos gráficas y se pone en inglés
+%Versión: 1.00 (20/09/2016)
+
 
 %La función ajusta una función de distribución de weibull a 
 %una colección de valores R de dimensión nx1 a devuelve los coeficientes c y k
-%siendo ?=0 :
+%siendo d=0 :
 
 %       k: factor de forma 
 %       c: factor de escala 
-%       ?: parámetro de posición
+%       d: parámetro de posición
+
+%Además, devuelve el factor de escala s entre la distribución de valores y
+%la de frecuencias tal que
+%s*hist(R,intervalos)=s*bar(intervalos,frecuencia)
 
 % la ecuación que ajusta es:
 
-% f(x)=(k/c)*[(x/c)^(k-1)]*e^((-(x/c))^k ),x?0
+% f(x)=(k/c)*[(x/c)^(k-1)]*e^((-(x/c))^k ),x>0
+
 
 %ejemplo
 %c=3;k=1.5;
 %R = wblrnd(c,k,13000,1);
-%[c k]=ajuste_weibull(R);
+%[c k s]=ajuste_weibull(R);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
-%Functión: [c,k]=ajuste_weibull (R)
+%Functión: [c,k,s]=ajuste_weibull (R)
 %Author: Alberto Laso Pérez, GTEA, University of Cantabria
-%Date: 20/09/2016
-%Version: 1.0
+%Date: 25/09/2016
+%Version: 1.01
+    %Function now returns scale factor s
+    %Labels in English are added to both figures
+%Version: 1.00 (20/09/2016)
+
 
 %The function fits a weibull distribution to a series of values R with size nx1 a una
-%and returns coeficients c and k with ?=0:
+%and returns coeficients c and k with d=0:
 
 %       k: shape parameter 
 %       c: scale parameter 
-%       ?: position parameter
+%       d: position parameter
+
+%It also returns scale factor s between the values and the frequencies
+%distribution so that
+%s*hist(R,intervalos)=s*bar(intervalos,frecuencia)
 
 % The ecuation to fit is:
 
-% f(x)=(k/c)*[(x/c)^(k-1)]*e^((-(x/c))^k ),x?0
+% f(x)=(k/c)*[(x/c)^(k-1)]*e^((-(x/c))^k ),x>0
+ 
 
 %example
 %c=3;k=1.5;
 %R = wblrnd(c,k,13000,1);
-%[c k]=ajuste_weibull(R);
+%[c k s]=ajuste_weibull(R);
 
 %%
-function [c,k]=ajuste_weibull (R)
+function [c,k,s]=ajuste_weibull (R)
 
 num_intervalos=100; %número de intervalos para el eje x
 num_max_iter=10000;%número máximo de iteraciones para el ajuste
@@ -57,8 +75,11 @@ num_valores=length(R);
 
 intervalos=linspace(val_min, val_max,num_intervalos); %vector intervalos(velocidades en caso de viento)
 figure(1)
+hold on
 hist(R,intervalos)%pintar histograma de datos según intervalo
-
+title('Source Values')
+xlabel('Speed')
+ylabel('Repetitions')
 
 repeticiones=hist(R,length(intervalos)); %obtengo historial de repeticiones
 frecuencia=zeros(1,length(intervalos));
@@ -76,7 +97,7 @@ opts = statset('MaxIter',num_max_iter); %número máximo de iteraciones
 af=nlinfit(x,frecuencia,f,a0,opts);
 
 %diagrama de frecuencias
-figure(3)
+figure(2)
 hold on
 bar(intervalos,frecuencia,'c');
 
@@ -85,12 +106,13 @@ x=linspace(val_min,val_max,1000);
 y=f(af,x);
 plot(x,y,'r')
 
-title('Ajuste a la función Weibull')
-xlabel('Velocidad')
-ylabel('Frecuencia')
+title('Weibull fit')
+xlabel('Speed')
+ylabel('Frecuency')
 hold off
 
 c=af(2);
 k=af(1);
+s=af(3);
 
 end
