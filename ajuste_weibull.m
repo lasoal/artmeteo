@@ -108,7 +108,7 @@ plot(x,y,'r')
 
 title('Weibull fit')
 xlabel('Speed')
-ylabel('Frecuency')
+ylabel('Frequency')
 hold off
 
 c=af(2);
